@@ -1,0 +1,144 @@
+.view-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f5f5f5;
+}
+
+.collection-header {
+  background: white !important;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 0;
+}
+
+.header-title {
+  margin: 0 !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  display: grid !important;
+}
+
+.bottom-nav {
+  background: white !important;
+  border-top: 1px solid #e0e0e0;
+  padding: 2% 0;
+}
+
+.nav-items-preview {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 4px;
+  min-height: 10%;
+  max-height: 10%;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-items-preview {
+  display: flex;
+  justify-content: space-around;
+  align-items: center; 
+  gap: 4px;
+  min-height: 100%; 
+  padding: 1%;
+  margin: 1%;
+}
+
+.nav-img-preview.selected {
+  border: 2px solid #2196F3;
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.nav-img-preview {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  opacity: 0.6;
+  margin: 0;
+  padding: 0;
+  display: block; 
+}
+
+.nav-items {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px; /* Уменьши gap */
+  padding: 4px 2px; /* Уменьши padding */
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  opacity: 0.6;
+  flex: 1;
+  text-align: center;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  opacity: 1;
+}
+
+.nav-item.active {
+  color: #2196F3;
+}
+
+.nav-icon {
+  font-size: 24px;
+}
+
+.nav-label {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.showImageContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 1%;
+  min-height: 70%;
+  max-height: 70%;
+  background-color: #f8f9fa;
+}
+
+.showImageContainer img {
+  max-width: 90%; 
+  max-height: 90%; 
+  width: auto;
+  height: auto;
+  object-fit: contain; 
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
