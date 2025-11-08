@@ -25,12 +25,6 @@ function App() {
     );
   };
 
-  const deSelectPhotos = () => {
-    setPhotos(photo => ({
-        
-      }))
-  };
-
   const togglePhotoSelection = (id) => {
     setPhotos(prevPhotos => 
       prevPhotos.map(photo => 

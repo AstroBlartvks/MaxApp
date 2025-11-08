@@ -245,3 +245,18 @@
   color: #666;
   font-size: 14px;
 }
+
+.empty-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #666;
+  font-size: 16px;
+  text-align: center;
+  min-height: 80%;
+}
+
+.empty-container img {
+  width: 100%;
+  height: auto;
+}

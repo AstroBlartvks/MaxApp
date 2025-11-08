@@ -1,31 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Button, Panel, Typography, Container, IconButton } from '@maxhub/max-ui';
 import './CollectionScreen.css';
-import QRCode from 'qrcode';
 import { QRCodeSVG } from 'qrcode.react';
-
-const generateQRCode = async (url = 'https://example.com') => {
-  try {
-    const qrCodeDataUrl = await QRCode.toDataURL(url, {
-      width: 256,
-      margin: 2,
-      color: {
-        dark: '#000000', 
-        light: '#FFFFFF'
-      }
-    });
-    return qrCodeDataUrl;
-  } catch (error) {
-    console.error('Ошибка генерации QR-кода:', error);
-    throw error;
-  }
-};
 
 function CollectionScreen({ USERID, photos, onToggleSelection, onAddPhoto, onDeletePhotos, onNavigate }) {
   const [viewMode, setViewMode] = useState('grid');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [lookAtPhotoType, setlookAtPhotoType] = useState(true);
 
   const selectedCount = photos.filter(p => p.selected).length;
   const hasSelected = selectedCount > 0;
@@ -76,7 +58,9 @@ function CollectionScreen({ USERID, photos, onToggleSelection, onAddPhoto, onDel
               >
                 🔍
               </button>
-              <button className="icon-btn">✅</button>
+              <button className="icon-btn"
+                onClick={() => setlookAtPhotoType(!lookAtPhotoType)}>
+                {!lookAtPhotoType ? '✅' : '⬜️'}</button>
               <button className="icon-btn">⋮</button>
             </div>
           </div>
@@ -86,7 +70,7 @@ function CollectionScreen({ USERID, photos, onToggleSelection, onAddPhoto, onDel
         </Container>
       </Panel>
 
-      {hasSelected && (
+      {!lookAtPhotoType && (
         <Panel mode="secondary" className="selection-toolbar">
           <Container>
             <div className="toolbar-content">
@@ -105,26 +89,28 @@ function CollectionScreen({ USERID, photos, onToggleSelection, onAddPhoto, onDel
         </Panel>
       )}
 
-      {/* <div className="photo-grid-container">
-        <div className="photo-grid">
-          {photos.map((photo) => (
-            <div 
-              key={photo.id} 
-              className={`photo-item ${photo.selected ? 'selected' : ''}`}
-              onClick={() => onToggleSelection(photo.id)}
-            >
-              <img src={photo.url} alt="" />
-              {photo.selected && (
-                <div className="selection-indicator">
-                  ✓
+      {!lookAtPhotoType && photos.length > 0 && ((
+          <div className="photo-grid-container">
+            <div className="photo-grid">
+              {photos.map((photo) => (
+                <div 
+                  key={photo.id} 
+                  className={`photo-item ${photo.selected ? 'selected' : ''}`}
+                  onClick={() => onToggleSelection(photo.id)}
+                >
+                  <img src={photo.url} alt="" />
+                  {photo.selected && (
+                    <div className="selection-indicator">
+                      ✓
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
             </div>
-          ))}
-        </div>
-      </div> */}
-
-      <div className="photo-grid-container">
+          </div>
+        ))}
+      
+      {lookAtPhotoType && photos.length > 0 &&(<div className="photo-grid-container">
         <div className="photo-grid">
           {photos.map((photo) => (
             <div 
@@ -136,7 +122,18 @@ function CollectionScreen({ USERID, photos, onToggleSelection, onAddPhoto, onDel
             </div>
           ))}
         </div>
-      </div>
+      </div>)
+      }
+
+      {photos.length <= 0 && (<div className="empty-container">
+
+        <div>
+          <img src="../img/pls_load_photo.png" ></img>
+          <br/>
+          <Typography.Body>Загрузите фото </Typography.Body>
+        </div>
+        
+      </div>)} 
 
       <Panel mode="tertiary" className="bottom-nav">
         <Container>

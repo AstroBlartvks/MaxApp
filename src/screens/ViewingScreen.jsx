@@ -1,5 +1,7 @@
 import { Button, Panel, Typography, Container, IconButton } from '@maxhub/max-ui';
 import './ViewingScreen.css';
+import { useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 
 const deselectAllPhotos = (setPhotos) => {
   setPhotos(prevPhotos => 
@@ -12,6 +14,7 @@ const deselectAllPhotos = (setPhotos) => {
 
 function ViewingScreen({ USERID, photos, onNavigate, setPhotos, onSelectPhoto }) { 
 
+  const [showQRCode, setShowQRCode] = useState(false);
   const handlePreviewClick = (clickedPhotoId) => {
     if (onSelectPhoto) {
       onSelectPhoto(clickedPhotoId);
@@ -100,7 +103,7 @@ function ViewingScreen({ USERID, photos, onNavigate, setPhotos, onSelectPhoto })
       <Panel mode="tertiary" className="bottom-nav">
         <Container>
           <div className="nav-items">
-            <button className="nav-item active">
+            <button className="nav-item" onClick={() => setShowQRCode(true)}>
               <span className="nav-icon">💌</span>
               <span className="nav-label">Поделиться</span>
             </button>
@@ -115,6 +118,40 @@ function ViewingScreen({ USERID, photos, onNavigate, setPhotos, onSelectPhoto })
           </div>
         </Container>
       </Panel>
+
+      {showQRCode && (
+        <div className="modal-overlay" onClick={() => setShowQRCode(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <Typography.Title level={3}>Поделиться</Typography.Title>
+            <div>
+              <h3>QR код фотографии</h3>
+              <QRCodeSVG
+                value={photos.map(element => {
+                  if (element.selected) {
+                    return element.url;
+                  }
+                  return null;
+                })}
+                size={256}
+                bgColor="#ffffff"
+                fgColor="#000000"
+                level="M"
+                includeMargin={true}
+              />
+              <p>Сканируйте QR код для доступа</p>
+            </div>
+            <div className="modal-actions">
+              <Button
+                mode="secondary"
+                onClick={() => setShowQRCode(false)}
+              >
+                Отмена
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
