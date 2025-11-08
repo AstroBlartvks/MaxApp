@@ -7,6 +7,7 @@
 ```bash
 npm i @maxhub/max-ui
 npm install qrcode
+npm install html5-qrcode
 ```
 
 **Для Windows:** Если при запуске возникает ошибка с пакетом `@esbuild/win32-x64`, выполните:

@@ -260,3 +260,43 @@
   width: 100%;
   height: auto;
 }
+
+.qr-scanner-modal {
+  max-width: 500px;
+}
+
+.qr-scanner-section {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.qr-scanner-hint {
+  margin-bottom: 16px;
+  color: #666;
+  font-size: 16px;
+}
+
+.qr-scanner-container {
+  margin: 20px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.qr-scanner-instruction {
+  margin-top: 16px;
+  color: #888;
+}
+
+/* Стили для самого сканера */
+#qr-reader {
+  width: 100% !important;
+}
+
+#qr-reader__dashboard {
+  padding: 16px;
+}
+
+#qr-reader__dashboard_section_csr span {
+  display: none;
+}

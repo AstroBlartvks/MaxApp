@@ -1,36 +1,76 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button, Panel, Typography, Container, IconButton } from '@maxhub/max-ui';
 import './CollectionScreen.css';
 import { QRCodeSVG } from 'qrcode.react';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 
 function CollectionScreen({ USERID, photos, onToggleSelection, onAddPhoto, onDeletePhotos, onNavigate }) {
   const [viewMode, setViewMode] = useState('grid');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
   const [lookAtPhotoType, setlookAtPhotoType] = useState(true);
+  const qrScannerRef = useRef(null);
 
   const selectedCount = photos.filter(p => p.selected).length;
   const hasSelected = selectedCount > 0;
 
-  const handleFileUpload = (event) => {
-  const files = event.target.files;
-  if (files && files.length > 0) {
-    const uploadedUrls = [];
-    
-    Array.from(files).forEach(file => {
-      if (file.type.startsWith('image/')) {
-        const url = URL.createObjectURL(file);
-        uploadedUrls.push(url);
-        onAddPhoto(url);
+  useEffect(() => {
+    if (showQRScanner) {
+      qrScannerRef.current = new Html5QrcodeScanner(
+        "qr-reader",
+        { 
+          fps: 10, 
+          qrbox: { width: 250, height: 250 }
+        },
+        false
+      );
+
+      qrScannerRef.current.render(
+        (decodedText) => {
+          console.log('QR код отсканирован:', decodedText);
+          alert(`Отсканирован QR-код: ${decodedText}`);
+          
+          qrScannerRef.current.clear();
+          setShowQRScanner(false);
+        },
+        (error) => {
+          console.log('Сканирование...', error);
+        }
+      );
+    } else {
+      if (qrScannerRef.current) {
+        qrScannerRef.current.clear();
+        qrScannerRef.current = null;
       }
-    });
-    
-    console.log('Загружено файлов:', uploadedUrls.length);
-    setShowAddDialog(false);
-    
-    event.target.value = '';
-  }
-};
+    }
+
+    return () => {
+      if (qrScannerRef.current) {
+        qrScannerRef.current.clear();
+      }
+    };
+  }, [showQRScanner]);
+
+  const handleFileUpload = (event) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const uploadedUrls = [];
+      
+      Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+          const url = URL.createObjectURL(file);
+          uploadedUrls.push(url);
+          onAddPhoto(url);
+        }
+      });
+      
+      console.log('Загружено файлов:', uploadedUrls.length);
+      setShowAddDialog(false);
+      
+      event.target.value = '';
+    }
+  };
 
   const handleDeletePhotos = () => {
     if (window.confirm(`Удалить выбранные фото (${selectedCount})?`)) {
@@ -57,6 +97,13 @@ function CollectionScreen({ USERID, photos, onToggleSelection, onAddPhoto, onDel
                 onClick={() => setShowQRCode(true)}
               >
                 🔍
+              </button>
+              <button 
+                className="icon-btn"
+                onClick={() => setShowQRScanner(true)}
+                title="Сканировать QR-код"
+              >
+                📷
               </button>
               <button className="icon-btn"
                 onClick={() => setlookAtPhotoType(!lookAtPhotoType)}>
@@ -195,6 +242,35 @@ function CollectionScreen({ USERID, photos, onToggleSelection, onAddPhoto, onDel
                 onClick={() => setShowAddDialog(false)}
               >
                 Отмена
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showQRScanner && (
+        <div className="modal-overlay" onClick={() => setShowQRScanner(false)}>
+          <div className="modal-content qr-scanner-modal" onClick={(e) => e.stopPropagation()}>
+            <Typography.Title level={3}>Сканировать QR-код</Typography.Title>
+            
+            <div className="qr-scanner-section">
+              <Typography.Body className="qr-scanner-hint">
+                Наведите камеру на QR-код
+              </Typography.Body>
+              
+              <div id="qr-reader" className="qr-scanner-container"></div>
+              
+              <Typography.Body size="s" className="qr-scanner-instruction">
+                Разрешите доступ к камере в браузере
+              </Typography.Body>
+            </div>
+
+            <div className="modal-actions">
+              <Button
+                mode="secondary"
+                onClick={() => setShowQRScanner(false)}
+              >
+                Закрыть
               </Button>
             </div>
           </div>
