@@ -5,7 +5,7 @@
 ### Установка зависимостей
 
 ```bash
-npm install max-ui
+npm i @maxhub/max-ui
 npm install qrcode
 ```
 
