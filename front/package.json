@@ -1,0 +1,36 @@
+{
+  "name": "front",
+  "version": "1.0.0",
+  "description": "Приложение-фотогалерея для мессенджера Max с красивым интерфейсом и удобным управлением.",
+  "main": "vite.config.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AstroBlartvks/MaxApp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AstroBlartvks/MaxApp/issues"
+  },
+  "homepage": "https://github.com/AstroBlartvks/MaxApp#readme",
+  "dependencies": {
+    "@maxhub/max-ui": "^0.1.12",
+    "bootstrap": "5.3.8",
+    "eruda": "^3.4.3",
+    "html5-qrcode": "^2.3.8",
+    "qrcode": "^1.5.4",
+    "qrcode.react": "3.2.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "vite": "^7.2.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.0"
+  }
+}

@@ -1,0 +1,376 @@
+.public-feed-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f5f5f5;
+}
+
+.collection-header {
+  background: white !important;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 0;
+  overflow: visible !important;
+  position: relative;
+  z-index: 10;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.header-title {
+  margin: 0 !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  position: relative;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.icon-btn:hover {
+  opacity: 1;
+}
+
+.search-panel {
+  background: white !important;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 0;
+}
+
+.search-container {
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: #2196F3;
+}
+
+.error-panel {
+  background: #ffebee !important;
+  padding: 12px 0;
+  border-bottom: 1px solid #ef5350;
+}
+
+.photo-grid-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  min-height: 80%;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.photo-item {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.photo-item:active {
+  transform: scale(0.95);
+}
+
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-item.imported {
+  border: 3px solid #FFD700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+.imported-indicator {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background: rgba(255, 215, 0, 0.9);
+  color: white;
+  font-size: 16px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #666;
+  font-size: 16px;
+  text-align: center;
+  min-height: 80%;
+  padding: 40px;
+}
+
+.observer-target {
+  padding: 20px;
+  text-align: center;
+}
+
+/* Photo Modal Styles */
+.photo-modal-content {
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 0 !important;
+}
+
+.photo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.photo-modal-header .icon-btn {
+  font-size: 24px;
+  padding: 8px;
+}
+
+.photo-modal-image-container {
+  position: relative;
+  width: 100%;
+  max-height: 60vh;
+  overflow: hidden;
+  background: #000;
+}
+
+.photo-modal-image-container img {
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  object-fit: contain;
+  display: block;
+}
+
+.photo-modal-navigation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.nav-arrow {
+  pointer-events: all;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  font-size: 48px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  margin: 0 16px;
+}
+
+.nav-arrow:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.nav-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.photo-modal-info {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.photo-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tag-badge {
+  padding: 4px 12px;
+  background-color: #e0e7ff;
+  border-radius: 16px;
+  font-size: 14px;
+  color: #4338ca;
+  display: inline-block;
+}
+
+.photo-modal-content .modal-actions {
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  margin-top: auto;
+}
+
+/* Адаптивность для разных размеров экранов */
+@media (max-width: 480px) {
+  .photo-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+  }
+  
+  .header-title {
+    font-size: 20px !important;
+  }
+  
+  .header-content {
+    gap: 8px;
+  }
+  
+  .icon-btn {
+    font-size: 18px;
+    padding: 6px;
+  }
+  
+  .search-input {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  
+  .photo-grid-container {
+    padding: 6px;
+  }
+  
+  .photo-modal-content {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+  
+  .photo-modal-header {
+    padding: 12px 16px;
+  }
+  
+  .photo-modal-header .icon-btn {
+    font-size: 20px;
+    padding: 6px;
+  }
+  
+  .photo-modal-image-container {
+    max-height: 50vh;
+  }
+  
+  .photo-modal-info {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+  
+  .photo-modal-content .modal-actions {
+    padding: 12px 16px;
+  }
+  
+  .nav-arrow {
+    width: 45px;
+    height: 45px;
+    font-size: 32px;
+    margin: 0 6px;
+  }
+  
+  .tag-badge {
+    font-size: 12px;
+    padding: 3px 10px;
+  }
+  
+  .empty-container {
+    padding: 30px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .photo-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  
+  .header-title {
+    font-size: 22px !important;
+  }
+  
+  .photo-modal-content {
+    max-width: 85vw;
+  }
+  
+  .nav-arrow {
+    width: 55px;
+    height: 55px;
+    font-size: 42px;
+    margin: 0 12px;
+  }
+}
+
+@media (min-width: 769px) {
+  .photo-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+  
+  .photo-grid-container {
+    padding: 12px;
+  }
+  
+  .header-title {
+    font-size: 26px !important;
+  }
+  
+  .photo-modal-content {
+    max-width: 80vw;
+  }
+  
+  .photo-modal-image-container {
+    max-height: 70vh;
+  }
+  
+  .nav-arrow {
+    width: 70px;
+    height: 70px;
+    font-size: 56px;
+    margin: 0 20px;
+  }
+}

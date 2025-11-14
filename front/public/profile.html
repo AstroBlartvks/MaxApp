@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Публичный профиль</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .profile-header {
+            background: white; border-radius: 16px; padding: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 24px; text-align: center;
+        }
+        .profile-photo {
+            width: 120px; height: 120px; border-radius: 50%;
+            object-fit: cover; border: 4px solid #667eea; margin-bottom: 16px;
+        }
+        .profile-photo-placeholder {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: #e0e0e0; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 48px; margin: 0 auto 16px;
+        }
+        .profile-name { font-size: 32px; font-weight: 700; color: #333; margin-bottom: 8px; }
+        .public-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; background: #dcfce7; border-radius: 20px;
+            font-size: 14px; color: #166534; font-weight: 600;
+        }
+        .contact-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 20px; background: #667eea; color: white;
+            border-radius: 12px; text-decoration: none;
+            font-size: 15px; font-weight: 600;
+            margin-top: 16px; transition: background 0.2s;
+            cursor: pointer; border: none;
+        }
+        .contact-link:hover {
+            background: #5568d3;
+        }
+        .contact-info {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; background: #e0e7ff;
+            border-radius: 12px; font-size: 14px;
+            color: #4338ca; margin-top: 12px;
+        }
+        .photos-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px; margin-top: 24px;
+        }
+        .photo-card {
+            background: white; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s; cursor: pointer;
+        }
+        .photo-card:hover { transform: translateY(-4px); }
+        .photo-image { width: 100%; aspect-ratio: 1; object-fit: cover; }
+        .photo-info { padding: 12px; }
+        .photo-description { font-size: 14px; color: #333; margin-bottom: 8px; }
+        .photo-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .photo-tag {
+            padding: 4px 10px; background: #e0e7ff; border-radius: 12px;
+            font-size: 12px; color: #4338ca;
+        }
+        .photo-date-group { margin-bottom: 24px; }
+        .date-separator {
+            padding: 12px 16px; background: white; border-radius: 8px;
+            margin: 0 0 16px 0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .date-label { font-size: 18px; font-weight: 600; color: #333; margin: 0; }
+        .loading, .error {
+            background: white; border-radius: 16px; padding: 40px;
+            text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .icon { font-size: 64px; margin-bottom: 16px; }
+        @media (max-width: 768px) {
+            .photos-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="content">
+            <div class="loading"><div class="icon">⏳</div><p>Загрузка профиля...</p></div>
+        </div>
+    </div>
+    <script>
+        // Определяем API URL на основе текущего домена
+        // Для production: api.whitea.cloud, для dev: localhost:8000
+        const getApiUrl = () => {
+            const hostname = window.location.hostname;
+            if (hostname === 'whitea.cloud' || hostname === 'www.whitea.cloud') {
+                return 'https://api.whitea.cloud';
+            } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:8000';
+            } else {
+                // Fallback: используем тот же протокол и хост, но с портом 8000
+                return `${window.location.protocol}//${hostname}:8000`;
+            }
+        };
+        const API_URL = getApiUrl();
+        
+        function formatPhotoDate(dateString) {
+            const date = new Date(dateString);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const yesterdayOnly = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+            
+            if (dateOnly.getTime() === todayOnly.getTime()) {
+                return 'Сегодня';
+            } else if (dateOnly.getTime() === yesterdayOnly.getTime()) {
+                return 'Вчера';
+            } else {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}.${month}.${year}`;
+            }
+        }
+        
+        function getDateKey(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        function groupPhotosByDate(photos) {
+            if (!photos || photos.length === 0) return [];
+            
+            const sortedPhotos = [...photos].sort((a, b) => {
+                return new Date(b.created_at) - new Date(a.created_at);
+            });
+            
+            const groups = {};
+            sortedPhotos.forEach(photo => {
+                const dateKey = getDateKey(photo.created_at);
+                if (!groups[dateKey]) {
+                    groups[dateKey] = {
+                        dateKey,
+                        dateLabel: formatPhotoDate(photo.created_at),
+                        photos: []
+                    };
+                }
+                groups[dateKey].photos.push(photo);
+            });
+            
+            return Object.values(groups).sort((a, b) => {
+                return b.dateKey.localeCompare(a.dateKey);
+            });
+        }
+        
+        async function loadProfile() {
+            const userId = window.location.pathname.split('/').pop();
+            if (!userId || isNaN(userId)) { showError('Неверная ссылка'); return; }
+            try {
+                const res = await fetch(`${API_URL}/api/profile-requests/public/${userId}`);
+                if (!res.ok) { showError(res.status === 404 ? 'Пользователь не найден' : 'Ошибка загрузки'); return; }
+                const data = await res.json();
+                if (!data.user.is_public_profile) { showPrivate(data.user); return; }
+                showProfile(data);
+            } catch (e) { showError('Ошибка соединения'); }
+        }
+        function showProfile(data) {
+            const { user, photos } = data;
+            
+            // Проверяем доступность Max WebApp API
+            const hasMaxAPI = window.WebApp?.sendEvent && window.WebApp?.subscribe;
+            
+            let html = `<div class="profile-header">
+                ${user.photo_url ? `<img src="${user.photo_url}" class="profile-photo">` : '<div class="profile-photo-placeholder">👤</div>'}
+                <h1 class="profile-name">${user.first_name} ${user.last_name || ''}</h1>
+                <div class="public-badge"><span>🌐</span><span>Публичный профиль</span></div>`;
+            
+            // Показываем ссылку для связи или ID
+            if (user.contact_link) {
+                html += `<a href="${user.contact_link}" class="contact-link" target="_blank" rel="noopener noreferrer">
+                    <span>💬</span>
+                    <span>Связаться</span>
+                </a>`;
+            } else if (hasMaxAPI) {
+                html += `<button class="contact-link" onclick="shareToUser(${user.id}, '${user.first_name}')">
+                    <span>💬</span>
+                    <span>Написать в Max</span>
+                </button>`;
+            } else {
+                html += `<div class="contact-info">
+                    <span>👤</span>
+                    <span>ID: ${user.id}</span>
+                </div>`;
+            }
+            
+            html += `</div>`;
+            
+            if (photos.length > 0) {
+                const photoGroups = groupPhotosByDate(photos);
+                photoGroups.forEach(group => {
+                    html += `<div class="photo-date-group">
+                        <div class="date-separator">
+                            <h3 class="date-label">${group.dateLabel}</h3>
+                        </div>
+                        <div class="photos-grid">`;
+                    
+                    group.photos.forEach(p => {
+                        html += `<div class="photo-card" onclick="window.open('${p.url}','_blank')">
+                            <img src="${p.url}" class="photo-image">
+                            ${p.description || (p.tags && p.tags.length) ? `<div class="photo-info">
+                                ${p.description ? `<p class="photo-description">${p.description}</p>` : ''}
+                                ${p.tags && p.tags.length ? `<div class="photo-tags">${p.tags.map(t => `<span class="photo-tag">${t}</span>`).join('')}</div>` : ''}
+                            </div>` : ''}
+                        </div>`;
+                    });
+                    
+                    html += `</div></div>`;
+                });
+            } else {
+                html += '<div class="error" style="margin-top:24px;"><p>Фотографий пока нет</p></div>';
+            }
+            
+            document.getElementById('content').innerHTML = html;
+        }
+        function showPrivate(user) {
+            document.getElementById('content').innerHTML = `<div class="error"><div class="icon">🔒</div><h1 class="profile-name">${user.first_name} ${user.last_name || ''}</h1><p>Профиль приватный. Используйте приложение для запроса доступа.</p></div>`;
+        }
+        function showError(msg) {
+            document.getElementById('content').innerHTML = `<div class="error"><div class="icon">❌</div><h2>${msg}</h2></div>`;
+        }
+        
+        function shareToUser(userId, userName) {
+            if (!window.WebApp || !window.WebApp.sendEvent) {
+                alert('Max WebApp API недоступен. Откройте эту страницу из Max.');
+                return;
+            }
+            
+            const requestId = 'share_' + Date.now();
+            const profileLink = window.location.href;
+            const text = `Привет! Посмотри мой публичный профиль`;
+            
+            // Подписываемся на ответ
+            window.WebApp.subscribe('WebAppMaxShare', function(event) {
+                console.log('Share result:', event);
+                if (event.requestId === requestId) {
+                    if (event.status === 'shared') {
+                        alert('Сообщение отправлено!');
+                    } else if (event.status === 'cancelled') {
+                        console.log('Отменено пользователем');
+                    }
+                }
+            });
+            
+            // Отправляем событие шаринга
+            window.WebApp.sendEvent('WebAppMaxShare', {
+                requestId: requestId,
+                text: text,
+                link: profileLink
+            });
+        }
+        
+        loadProfile();
+    </script>
+</body>
+</html>
