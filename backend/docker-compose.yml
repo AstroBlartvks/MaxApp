@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-app
+    restart: unless-stopped
+    network_mode: host
+    env_file:
+      - .env
+    volumes:
+      # Монтируем .env файл
+      - ./.env:/app/.env:ro
+      # Монтируем директорию uploads для сохранения загруженных файлов
+      - ./uploads:/app/uploads
+      # Монтируем error.log для доступа к логам
+      - ./error.log:/app/error.log
+    environment:
+      - SERVER_HOST=${SERVER_HOST:-0.0.0.0}
+      - SERVER_PORT=${SERVER_PORT:-8000}
+

@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Logs
+*.log
+
+# Environment (будет монтироваться отдельно)
+# .env
+
+# Documentation
+*.md
+BACKEND.md
+DATABASE.md
+
+# Database migrations (если не нужны в контейнере)
+# postgresql/
+
+# Uploads (будет монтироваться как volume)
+# uploads/
