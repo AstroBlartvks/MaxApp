@@ -450,6 +450,16 @@ function App() {
   }, [isAuthenticated, handleWebSocketMessage]);
 
 
+  useEffect(() => {
+    const path = window.location.pathname;
+    const publicProfileMatch = path.match(/^\/public\/(\d+)/);
+
+    if (publicProfileMatch && publicProfileMatch[1]) {
+      const userId = publicProfileMatch[1];
+      navigateToScreen('profile_view', { userId: userId });
+    }
+  }, []);
+
   const handleLogin = async () => {
     setIsLoading(true);
     try {

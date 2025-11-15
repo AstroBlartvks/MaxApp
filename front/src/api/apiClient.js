@@ -1,5 +1,5 @@
 // Используем переменную окружения или значение по умолчанию
-const API_URL = import.meta.env.VITE_API_URL || 'https://api.whitea.cloud';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 let accessToken = localStorage.getItem('accessToken');
 

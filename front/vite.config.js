@@ -15,15 +15,18 @@ export default defineConfig(({ mode }) => {
         `www.${env.VITE_PRODUCTION_DOMAIN || 'whitea.cloud'}`,
         'localhost'
       ],
-      hmr: {
-        host: env.VITE_PRODUCTION_DOMAIN || 'whitea.cloud',  
-        clientPort: env.VITE_PRODUCTION_PROTOCOL === 'https' ? 443 : 80,       
-        protocol: env.VITE_PRODUCTION_PROTOCOL === 'https' ? 'wss' : 'ws'        
-      },
       proxy: {
-        '/public': {
-          target: `http://localhost:${env.VITE_DEV_PORT || '5173'}`,
-          rewrite: (path) => '/public-profile.html'
+        '/api': {
+          target: 'https://api.whitea.cloud',
+          changeOrigin: true,
+        },
+        '/auth': {
+          target: 'https://api.whitea.cloud',
+          changeOrigin: true,
+        },
+        '/trades': {
+          target: 'https://api.whitea.cloud',
+          changeOrigin: true,
         }
       }
     }
