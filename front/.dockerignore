@@ -1,19 +1,14 @@
-# Игнорировать node_modules в контексте сборки
 node_modules
 npm-debug.log
-
-# Игнорировать git файлы
 .git
 .gitignore
-
-# Игнорировать временные файлы
-*.log
-*.tmp
-.DS_Store
-
-# Игнорировать IDE настройки
+.env
+.env.local
+.env.production.local
+.env.development.local
+README.md
 .vscode
 .idea
-
-# Игнорировать директорию сборки (она создается внутри контейнера)
+*.md
 dist
+.DS_Store

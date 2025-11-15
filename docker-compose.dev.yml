@@ -1,0 +1,89 @@
+version: '3.8'
+
+# Docker Compose конфигурация для разработки
+# Использование: docker-compose -f docker-compose.dev.yml up
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: max_gallery_db_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-app_db}
+      POSTGRES_USER: ${DB_USER:-app_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - ./backend/database.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app_user} -d ${DB_NAME:-app_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - max_gallery_network_dev
+
+  # Backend API (с hot-reload)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: max_gallery_backend_dev
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-app_user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-app_db}
+      SECRET_KEY: ${SECRET_KEY}
+      REFRESH_SECRET_KEY: ${REFRESH_SECRET_KEY}
+      BOT_TOKEN: ${BOT_TOKEN}
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 8000
+      DEBUG: "true"
+      LOG_LEVEL: DEBUG
+      CORS_ORIGINS: http://localhost,http://localhost:5173,http://localhost:80,http://localhost:8080
+    volumes:
+      - ./backend:/app
+      - uploads_data_dev:/app/uploads
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - max_gallery_network_dev
+
+  # Frontend (dev server)
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile.dev
+    container_name: max_gallery_frontend_dev
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: http://localhost:8000
+      VITE_WS_URL: ws://localhost:8000/ws
+      VITE_DEBUG: "true"
+    volumes:
+      - ./front:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    networks:
+      - max_gallery_network_dev
+
+volumes:
+  postgres_data_dev:
+    name: max_gallery_postgres_data_dev
+  uploads_data_dev:
+    name: max_gallery_uploads_dev
+
+networks:
+  max_gallery_network_dev:
+    name: max_gallery_network_dev
+    driver: bridge

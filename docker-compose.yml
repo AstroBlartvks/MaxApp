@@ -1,0 +1,127 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: max_gallery_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-app_db}
+      POSTGRES_USER: ${DB_USER:-app_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/database.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app_user} -d ${DB_NAME:-app_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - max_gallery_network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: max_gallery_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database
+      DATABASE_URL: postgresql://${DB_USER:-app_user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-app_db}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-app_db}
+      DB_USER: ${DB_USER:-app_user}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+      
+      # JWT
+      SECRET_KEY: ${SECRET_KEY}
+      REFRESH_SECRET_KEY: ${REFRESH_SECRET_KEY}
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      REFRESH_TOKEN_EXPIRE_DAYS: 30
+      
+      # Bot
+      BOT_TOKEN: ${BOT_TOKEN}
+      
+      # Server
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 8000
+      DEBUG: ${DEBUG:-false}
+      
+      # CORS
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:80,http://localhost:8080,http://localhost:5173}
+      CORS_METHODS: GET,POST,PUT,DELETE,PATCH,OPTIONS
+      CORS_MAX_AGE: 3600
+      
+      # Files
+      UPLOADS_DIR: /app/uploads
+      MAX_UPLOAD_SIZE: 10485760
+      ALLOWED_FILE_TYPES: image/jpeg,image/png,image/gif,image/webp,image/heic,image/heif
+      BASE_URL: ${BASE_URL:-http://localhost:8000}
+      
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ERROR_LOG_FILE: /app/error.log
+      
+      # WebSocket
+      WEBSOCKET_ENABLED: true
+      
+      # Security
+      FORCE_HTTPS: false
+      SECURITY_HEADERS_ENABLED: true
+    volumes:
+      - uploads_data:/app/uploads
+      - ./backend/error.log:/app/error.log
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - max_gallery_network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+        - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:8000/ws}
+    container_name: max_gallery_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - max_gallery_network
+
+volumes:
+  postgres_data:
+    name: max_gallery_postgres_data
+  uploads_data:
+    name: max_gallery_uploads
+
+networks:
+  max_gallery_network:
+    name: max_gallery_network
+    driver: bridge

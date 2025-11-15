@@ -1,0 +1,53 @@
+# ============================================
+# Root .gitignore for Max Photo Gallery
+# ============================================
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+
+# Docker
+docker-compose.override.yml
+
+# Backups
+backups/
+*.sql
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+~*
+
+# Python cache (если запускаете локально)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node modules (если запускаете локально)
+node_modules/
+
+# Build outputs (если собираете локально)
+dist/
+build/
+
+# Uploaded files (хранятся в Docker volumes)
+backend/uploads/*
+!backend/uploads/.gitkeep

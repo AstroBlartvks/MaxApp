@@ -1,13 +1,14 @@
-# Используем официальный образ Python
+# Backend Dockerfile для Max Photo Gallery
 FROM python:3.11-slim
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Устанавливаем системные зависимости для PostgreSQL и других библиотек
+# Устанавливаем системные зависимости
 RUN apt-get update && apt-get install -y \
-    gcc \
     postgresql-client \
+    libpq-dev \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
 
 # Копируем файл зависимостей
@@ -19,12 +20,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Копируем весь код приложения
 COPY . .
 
-# Создаем директорию для загрузок, если её нет
-RUN mkdir -p uploads
+# Создаем директорию для загруженных файлов
+RUN mkdir -p /app/uploads
 
-# Открываем порт (по умолчанию 8000, можно переопределить через переменные окружения)
+# Открываем порт
 EXPOSE 8000
 
-# Команда запуска приложения
-# Используем переменные окружения для хоста и порта
-CMD ["sh", "-c", "uvicorn app.main:app --host ${SERVER_HOST:-0.0.0.0} --port ${SERVER_PORT:-8000}"]
+# Команда запуска
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

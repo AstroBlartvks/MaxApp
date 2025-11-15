@@ -1,26 +1,46 @@
 # Frontend Dockerfile для Max Photo Gallery
-FROM node:20-alpine
+# Multi-stage build для оптимизации размера
 
-# Установка рабочей директории
+# Stage 1: Build
+FROM node:20-alpine AS builder
+
 WORKDIR /app
 
-# Копирование package файлов
+# Аргументы для переменных окружения при сборке
+ARG VITE_API_URL=http://localhost:8000
+ARG VITE_WS_URL=ws://localhost:8000/ws
+ARG VITE_APP_NAME="Max Photo Gallery"
+ARG VITE_APP_VERSION=1.0.0
+
+# Устанавливаем переменные окружения для Vite
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_WS_URL=$VITE_WS_URL
+ENV VITE_APP_NAME=$VITE_APP_NAME
+ENV VITE_APP_VERSION=$VITE_APP_VERSION
+
+# Копируем package.json и package-lock.json
 COPY package*.json ./
 
-# Установка зависимостей
-RUN npm install
+# Устанавливаем зависимости
+RUN npm ci
 
-# Копирование всех файлов проекта
+# Копируем исходный код
 COPY . .
 
-# Сборка проекта
+# Собираем приложение для production
 RUN npm run build
 
-# Объявление переменной для порта
-ARG VITE_DEV_PORT=5444
-# Открытие порта для npm preview
-EXPOSE $VITE_DEV_PORT
+# Stage 2: Production
+FROM nginx:alpine
 
-# Запуск preview сервера с указанием порта
-# Использует переменную окружения VITE_DEV_PORT, если она задана, иначе 5444
-CMD ["sh", "-c", "npm run preview -- --port ${VITE_DEV_PORT:-5444}"]
+# Копируем собранное приложение из builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Копируем кастомную конфигурацию nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Открываем порт 80
+EXPOSE 80
+
+# Запускаем nginx
+CMD ["nginx", "-g", "daemon off;"]
