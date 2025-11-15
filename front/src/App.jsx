@@ -14,17 +14,6 @@ import apiClient from './api/apiClient';
 import { triggerHapticNotification, triggerHapticImpact } from './utils/hapticFeedback';
 import './App.css';
 
-if (typeof window !== 'undefined' && import.meta.env.DEV) {
-  try {
-    import('eruda').then((eruda) => {
-      eruda.default.init({
-        tool: ['console','network','resources']
-      });
-    }).catch(() => {});
-  } catch (e) {}
-}
-
-
 function App() {
   const [currentScreen, setCurrentScreen] = useState('collection');
   const [photos, setPhotos] = useState([]);
@@ -1056,3 +1045,4 @@ function App() {
 }
 
 export default App;
+
